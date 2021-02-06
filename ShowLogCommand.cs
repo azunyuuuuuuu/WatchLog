@@ -21,6 +21,9 @@ namespace WatchLog
         [CommandOption("interval", 'n', Description = "Logarithm base.")]
         public double ExecutionInterval { get; set; } = 2;
 
+        private string _oldbuffer = string.Empty;
+        private string _newbuffer = string.Empty;
+
         public async ValueTask ExecuteAsync(IConsole console)
         {
             Arguments = Arguments.RemoveQuoteMarks().ToList();
@@ -28,22 +31,37 @@ namespace WatchLog
             console.Output.WriteLine($"{Command} {string.Join(' ', Arguments)}");
 
             while (true)
-            {
-                var command = Cli.Wrap(Command);
+                await ExecuteCommandInLoopAsync(console);
+        }
 
-                if (Arguments.Count > 0)
-                    command = command.WithArguments(Arguments, false);
+        private async Task ExecuteCommandInLoopAsync(IConsole console)
+        {
+            var command = Cli.Wrap(Command);
 
-                var result = await command.ExecuteBufferedAsync();
+            if (Arguments.Count > 0)
+                command = command.WithArguments(Arguments, false);
 
+            var result = await command.ExecuteBufferedAsync();
+            _oldbuffer = _newbuffer;
+            _newbuffer = result.StandardOutput;
 
-                await console.Output.WriteAsync(result.StandardOutput);
+            await OutputDifferences(console);
 
-                await Task.Delay(TimeSpan.FromSeconds(ExecutionInterval));
-            }
+            await Task.Delay(TimeSpan.FromSeconds(ExecutionInterval));
+        }
 
-            // Return empty task because our command executes synchronously
-            // return Task.CompletedTask;
+        private async Task OutputDifferences(IConsole console)
+        {
+            var timestamp = DateTimeOffset.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            var tempnew = _newbuffer.Split(Environment.NewLine);
+            var tempold = _oldbuffer.Split(Environment.NewLine);
+            var tempadded = tempnew.Where(x => !tempold.Contains(x));
+            var tempremoved = tempold.Where(x => !tempnew.Contains(x));
+
+            foreach (var line in tempadded)
+                await console.Output.WriteLineAsync($"{timestamp} \u001b[32m[ADD]\u001b[0m: {line}");
+            foreach (var line in tempremoved)
+                await console.Output.WriteLineAsync($"{timestamp} \u001b[31m[REM]\u001b[0m: {line}");
         }
     }
 }
