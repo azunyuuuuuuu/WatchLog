@@ -14,13 +14,11 @@ namespace WatchLog
             => await CoconaLiteApp.RunAsync<Program>(args);
 
         public async Task LogCommand(
-            [Argument] string command,
-            [Argument] string[] arguments,
+            [Argument("command")] string command,
+            [Argument("arguments")] List<string> arguments = null,
             [Option] double delay = 2.0)
         {
-            var temp = arguments.RemoveQuoteMarks().RemoveStartingSlash();
-
-            Console.WriteLine($"{command} {string.Join(' ', temp)}");
+            var temp = arguments?.RemoveQuoteMarks().RemoveStartingSlash();
 
             var buffers = new Buffers(
                 oldbuffer: string.Empty,
@@ -38,7 +36,7 @@ namespace WatchLog
         {
             var cli = Cli.Wrap(command);
 
-            if (arguments.Count() > 0)
+            if (arguments?.Count() > 0)
                 cli = cli.WithArguments(arguments, false);
 
             var result = await cli.ExecuteBufferedAsync();
