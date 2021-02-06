@@ -26,7 +26,7 @@ namespace WatchLog
 
         public async ValueTask ExecuteAsync(IConsole console)
         {
-            Arguments = Arguments.RemoveQuoteMarks().ToList();
+            Arguments = Arguments.RemoveQuoteMarks().RemoveStartingSlash().ToList();
 
             console.Output.WriteLine($"{Command} {string.Join(' ', Arguments)}");
 

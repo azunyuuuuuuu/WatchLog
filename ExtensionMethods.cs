@@ -12,5 +12,12 @@ namespace WatchLog
             input.Length > 2
             && input.First() == '"'
             && input.Last() == '"' ? input.Substring(1, input.Length - 2) : input;
+
+        public static IEnumerable<string> RemoveStartingSlash(this IEnumerable<string> input) =>
+            input.Select(x => x.RemoveStartingSlash());
+
+        public static string RemoveStartingSlash(this string input) =>
+            input.Length > 1
+            && input.First() == '\\' ? input.Substring(1, input.Length - 1) : input;
     }
 }
