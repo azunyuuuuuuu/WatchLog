@@ -68,10 +68,10 @@ namespace WatchLog
             var tempadded = tempnew.Where(x => !tempold.Contains(x));
             var tempremoved = tempold.Where(x => !tempnew.Contains(x));
 
-            foreach (var line in tempadded)
-                Console.WriteLine($"{timestamp} \u001b[32m[ADD]\u001b[0m: {line}");
             foreach (var line in tempremoved)
                 Console.WriteLine($"{timestamp} \u001b[31m[REM]\u001b[0m: {line}");
+            foreach (var line in tempadded)
+                Console.WriteLine($"{timestamp} \u001b[32m[ADD]\u001b[0m: {line}");
         }
 
     }
