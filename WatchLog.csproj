@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="CliFx" Version="1.6.0" />
     <PackageReference Include="CliWrap" Version="3.3.0" />
   </ItemGroup>
 

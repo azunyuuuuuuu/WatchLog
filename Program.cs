@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Threading.Tasks;
+using CliFx;
 
 namespace WatchLog
 {
-    class Program
+    public static class Program
     {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
+        public static async Task<int> Main() =>
+            await new CliApplicationBuilder()
+                .AddCommandsFromThisAssembly()
+                .Build()
+                .RunAsync();
     }
 }
