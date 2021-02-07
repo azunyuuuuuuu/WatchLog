@@ -26,14 +26,14 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Publish
-      run: dotnet publish --configuration Release
-    - name: Create artefact # This would actually build your project, using zip for an example artifact
+      run: dotnet publish --configuration Release --runtime win-x64 --output artifacts/win-x64 --self-contained false
+    - name: Create artifact # This would actually build your project, using zip for an example artifact
       run: |
-        mkdir artifacts
-        zip -r artifacts/release.zip bin/Release/net5.0/publish
+        zip -r artifacts/win-x64.zip artifacts/win-x64
+        rm -rf artifacts/win-x64
     - uses: actions/upload-artifact@v1
       with:
-        name: artifact
+        name: artifacts
         path: ./artifacts    
   
   release:
@@ -47,8 +47,8 @@ jobs:
     - name: Download Artifact
       uses: actions/download-artifact@v2
       with:
-        name: artifact
-        path: artifact
+        name: artifacts
+        path: artifacts
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
@@ -66,6 +66,6 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps 
-        asset_path: artifact/release.zip
-        asset_name: release.zip
+        asset_path: artifacts/win-x64.zip
+        asset_name: win-x64.zip
         asset_content_type: application/zip
