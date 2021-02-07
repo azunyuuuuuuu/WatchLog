@@ -14,30 +14,26 @@ namespace WatchLog
             => await CoconaLiteApp.RunAsync<Program>(args);
 
         public async Task LogCommand(
-            [Argument("command")] string command,
-            [Argument("arguments")] List<string> arguments = null,
+            [Argument("command")] List<string> command,
             [Option] double delay = 2.0)
         {
-            var temp = arguments?.RemoveQuoteMarks().RemoveStartingSlash();
-
             var buffers = new Buffers(
                 oldbuffer: string.Empty,
                 newbuffer: string.Empty);
 
             while (!Context.CancellationToken.IsCancellationRequested)
-                buffers = await ExecuteCommandInLoopAsync(command, temp, buffers, delay);
+                buffers = await ExecuteCommandInLoopAsync(command, buffers, delay);
         }
 
         private async Task<Buffers> ExecuteCommandInLoopAsync(
-            string command,
-            IEnumerable<string> arguments,
+            IEnumerable<string> command,
             Buffers buffers,
             double delay)
         {
-            var cli = Cli.Wrap(command);
+            var cli = Cli.Wrap(command.First());
 
-            if (arguments?.Count() > 0)
-                cli = cli.WithArguments(arguments, false);
+            if (command.Count() > 1)
+                cli = cli.WithArguments(command.Skip(1), false);
 
             var result = await cli.ExecuteBufferedAsync();
 

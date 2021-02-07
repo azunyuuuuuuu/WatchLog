@@ -14,8 +14,8 @@
             "args": [
                 "--delay",
                 "0,1",
-                "netstat",
                 "--",
+                "netstat",
                 "-nf",
             ],
             "cwd": "${workspaceFolder}",
